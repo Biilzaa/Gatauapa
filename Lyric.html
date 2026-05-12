@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barasuara - Terbuang Dalam Waktu (Karaoke)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d0d0d;
+            color: #fff;
+            font-family: 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 1.8rem; letter-spacing: 8px; color: #d4af37; margin: 0; }
+        .artist { font-size: 1rem; color: #888; margin-top: 10px; font-weight: bold; letter-spacing: 2px; }
+
+        audio {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        .lyric-window {
+            height: 450px;
+            overflow-y: auto; 
+            position: relative;
+            padding: 200px 0; 
+            scrollbar-width: none; 
+            mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+            scroll-behavior: smooth; 
+        }
+        .lyric-window::-webkit-scrollbar { display: none; }
+
+        .line {
+            font-size: 1.4rem;
+            line-height: 3rem;
+            margin: 20px 0;
+            opacity: 0.25; 
+            transform: scale(0.95); 
+            transition: color 0.6s ease, opacity 0.6s ease, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), text-shadow 0.6s ease;
+            cursor: pointer;
+        }
+
+        .line.active {
+            color: #d4af37;
+            opacity: 1; 
+            transform: scale(1.15); 
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.7); 
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header">
+        <h1>TERBUANG DALAM WAKTU</h1>
+        <div class="artist">BARASUARA</div>
+    </div>
+
+    <audio id="audioPlayer" controls>
+        <source src="Terbuang Dalam Waktu.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung elemen audio.
+    </audio>
+
+    <div class="lyric-window" id="lyricContainer"></div>
+</div>
+
+<script>
+    const kalibrasiWaktu = 0; 
+    
+    const lyricsData = [
+        // BAGIAN ATAS (Dikembalikan ke waktu asli yang cepat dan pas)
+        { time: 41.0, text: "Teringat seru suaramu" },
+        { time: 44.5, text: "Menepis keraguan" },
+        { time: 48.5, text: "Namun dewasa mengubah" },
+        { time: 52.5, text: "Cara pandang dan keikhlasan" },
+        { time: 56.5, text: "Bersaut dan bergulat" },
+        { time: 60.5, text: "Terperai-perai menghilang" },
+        
+        // BAGIAN TENGAH (Mulai di detik ke-66 agar tidak terlalu lambat/cepat)
+        { time: 66.0, text: "Perih yang terasa" },
+        { time: 70.0, text: "Sakit yang tak sirna" },
+        { time: 75.0, text: "Harapan akankah ada" },
+        { time: 79.5, text: "Berputar arah" },
+        
+        // CHORUS (Tempo dirapatkan sesuai vokal yang cepat)
+        { time: 83.0, text: "Angan tenggelam dalam kabut dan amarah" },
+        { time: 89.0, text: "Luka terkuak dan menggebu tanpa arah" },
+        { time: 96.0, text: "Tangis yang terbendung" },
+        { time: 100.0, text: "Terbuang dalam waktu" },
+        { time: 106.0, text: "Yang meluruh" },
+
+        { time: 134.0, text: "Perih yang terasa" },
+        { time: 138.0, text: "Sakit yang tak sirna" },
+        { time: 143.0, text: "Harapan akankah ada" },
+        { time: 148.0, text: "Berubah" },
+        
+        { time: 163.0, text: "Melihatmu bersemi dan bermekaran" },
+        { time: 170.0, text: "Tawa candamu berikan kekuatan" },
+        { time: 177.0, text: "Sisa hariku pagi berganti waktu" },
+        { time: 185.0, text: "Memelukmu" },
+
+        { time: 195.0, text: "Kita kan tua dan kehilangan pegangan" },
+        { time: 203.0, text: "Lihat senyummu memberikan kekuatan" },
+        { time: 210.0, text: "Sisa nafasku cinta tak kenal waktu" },
+        { time: 218.0, text: "Menjagamu" }
+    ];
+
+    const audio = document.getElementById('audioPlayer');
+    const container = document.getElementById('lyricContainer');
+    let currentLineIndex = -1;
+
+    lyricsData.forEach((line, index) => {
+        const div = document.createElement('div');
+        div.className = 'line';
+        div.id = 'line-' + index;
+        div.innerText = line.text;
+        
+        div.addEventListener('click', () => {
+            audio.currentTime = line.time;
+            audio.play();
+        });
+
+        container.appendChild(div);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        const waktuSekarang = audio.currentTime - kalibrasiWaktu;
+        let activeIndex = -1;
+
+        for (let i = 0; i < lyricsData.length; i++) {
+            if (waktuSekarang >= lyricsData[i].time) {
+                activeIndex = i;
+            } else {
+                break;
+            }
+        }
+
+        if (activeIndex !== currentLineIndex && activeIndex !== -1) {
+            const previousActive = document.querySelector('.line.active');
+            if (previousActive) {
+                previousActive.classList.remove('active');
+            }
+
+            const newActive = document.getElementById('line-' + activeIndex);
+            if (newActive) {
+                newActive.classList.add('active');
+                newActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            currentLineIndex = activeIndex;
+        }
+    });
+</script>
+
+</body>
+</html>
